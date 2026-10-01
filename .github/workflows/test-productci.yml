@@ -1,0 +1,29 @@
+name: Basic Test CI
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  unit-test-smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Thiết lập môi trường Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Cài đặt dependencies
+        run: npm install
+
+      - name: Smoke Test (Kiểm tra cú pháp và khởi tạo ứng dụng)
+        run: |
+          echo "Testing application structure..."
+          node -e "require('./src/app.js'); console.log('App loaded successfully');"
