@@ -10,6 +10,12 @@ jobs:
   test-and-verify:
     runs-on: ubuntu-latest
 
+    services:
+      mongodb:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+
     steps:
       - name: Checkout mã nguồn
         uses: actions/checkout@v4
@@ -19,12 +25,6 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
-          
-      - name: Khởi động MongoDB Container
-        run: docker run -d --name test-mongo -p 27017:27017 mongo:6.0
-        
-      - name: Chờ MongoDB sẵn sàng
-        run: sleep 15
 
       - name: Cài đặt toàn bộ dependencies
         run: npm ci
@@ -32,7 +32,8 @@ jobs:
       - name: Chạy toàn bộ integration tests CRUD với MongoDB
         env:
           PORT: 3000
-          MONGO_URI: mongodb://127.0.0.1:27017/product_test_db
+          # Đổi sang dùng tên service 'mongodb' thay vì localhost
+          MONGO_URI: mongodb://mongodb:27017/product_test_db
         run: npm test
 
   cd-dockerhub:
