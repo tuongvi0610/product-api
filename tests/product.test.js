@@ -2,7 +2,6 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const app = require('../src/app');
 
-// Tăng thời gian chờ mặc định của Jest lên 30 giây
 jest.setTimeout(30000);
 
 const TEST_MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/product_test_db';

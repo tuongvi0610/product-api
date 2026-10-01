@@ -32,8 +32,7 @@ jobs:
       - name: Chạy toàn bộ integration tests CRUD với MongoDB
         env:
           PORT: 3000
-          # Đổi sang dùng tên service 'mongodb' thay vì localhost
-          MONGO_URI: mongodb://mongodb:27017/product_test_db
+          MONGO_URI: mongodb://127.0.0.1:27017/product_test_db
         run: npm test
 
   cd-dockerhub:
