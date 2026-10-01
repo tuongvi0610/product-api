@@ -10,12 +10,6 @@ jobs:
   test-and-verify:
     runs-on: ubuntu-latest
 
-    services:
-      mongodb:
-        image: mongo:6.0
-        ports:
-          - 27017:27017
-
     steps:
       - name: Checkout mã nguồn
         uses: actions/checkout@v4
@@ -25,6 +19,12 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
+          
+      - name: Khởi động MongoDB Container
+        run: docker run -d --name test-mongo -p 27017:27017 mongo:6.0
+        
+      - name: Chờ MongoDB sẵn sàng
+        run: sleep 15
 
       - name: Cài đặt toàn bộ dependencies
         run: npm ci
