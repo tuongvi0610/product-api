@@ -2,6 +2,9 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const app = require('../src/app');
 
+// Tăng thời gian chờ mặc định của Jest lên 30 giây để tránh lỗi timeout trên GitHub Actions
+jest.setTimeout(30000);
+
 const TEST_MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/product_test_db';
 
 beforeAll(async () => {
@@ -9,7 +12,10 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await mongoose.connection.dropDatabase();
+  // Chỉ thực hiện xóa database nếu trạng thái Mongoose đã kết nối thành công (readyState === 1)
+  if (mongoose.connection.readyState === 1) {
+    await mongoose.connection.dropDatabase();
+  }
   await mongoose.connection.close();
 });
 
