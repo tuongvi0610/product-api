@@ -15,11 +15,6 @@ jobs:
         image: mongo:6.0
         ports:
           - 27017:27017
-        options: >-
-          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
       - name: Checkout mã nguồn
@@ -65,3 +60,15 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/product-api:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/product-api:${{ github.sha }}
+
+  deploy-local:
+    needs: cd-dockerhub
+    runs-on: self-hosted
+    steps:
+      - name: Kéo image mới nhất từ Docker Hub về Local
+        run: |
+          docker compose -f docker-compose-prod.yaml pull
+
+      - name: Khởi động container phiên bản mới
+        run: |
+          docker compose -f docker-compose-prod.yaml up -d --remove-orphans
