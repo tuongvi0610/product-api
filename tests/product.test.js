@@ -2,17 +2,24 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const app = require('../src/app');
 
-// Tăng thời gian chờ mặc định của Jest lên 30 giây để tránh lỗi timeout trên GitHub Actions
+// Tăng thời gian chờ mặc định của Jest lên 30 giây
 jest.setTimeout(30000);
 
 const TEST_MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/product_test_db';
 
 beforeAll(async () => {
-  await mongoose.connect(TEST_MONGO_URI);
+  try {
+    await mongoose.connect(TEST_MONGO_URI, {
+      family: 4, // Ép dùng IPv4 để tránh lỗi timeout trên GitHub Actions
+      serverSelectionTimeoutMS: 5000
+    });
+  } catch (error) {
+    console.error("Lỗi kết nối MongoDB trên CI:", error);
+    throw error;
+  }
 });
 
 afterAll(async () => {
-  // Chỉ thực hiện xóa database nếu trạng thái Mongoose đã kết nối thành công (readyState === 1)
   if (mongoose.connection.readyState === 1) {
     await mongoose.connection.dropDatabase();
   }
