@@ -7,7 +7,10 @@ jest.setTimeout(30000);
 const TEST_MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/product_test_db';
 
 beforeAll(async () => {
-  await mongoose.connect(TEST_MONGO_URI);
+  // Thêm appName để ép Mongoose gửi metadata hợp lệ cho MongoDB 6.0+
+  await mongoose.connect(TEST_MONGO_URI, {
+    appName: 'jest-ci-test'
+  });
 });
 
 afterAll(async () => {
