@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const app = require('../src/app');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
-// Tăng hẳn thời gian chờ lên 120 giây (2 phút) để GitHub Actions có đủ thời gian tải file lõi
 jest.setTimeout(120000); 
 
 let mongoServer;
@@ -15,6 +14,17 @@ beforeAll(async () => {
     
     await mongoose.connect(mongoUri, {
       appName: 'jest-ci-test',
+      // Fix dứt điểm lỗi Missing required sub-document 'driver'
+      driverInfo: {
+        name: 'jest-ci',
+        version: '1.0.0'
+      },
+      driver: { 
+        name: 'nodejs|jest', 
+        version: '1.0.0' 
+      },
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000
     });
   } catch (error) {
     console.error('Lỗi khởi tạo MongoDB Memory Server:', error);
