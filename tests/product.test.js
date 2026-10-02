@@ -12,12 +12,9 @@ beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     
+    // Gỡ bỏ hoàn toàn driverInfo theo hướng dẫn của Copilot
     await mongoose.connect(mongoUri, {
       appName: 'jest-ci-test',
-      driverInfo: {
-        name: 'jest-ci',
-        version: '1.0.0'
-      },
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000
     });
