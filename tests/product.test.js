@@ -7,10 +7,23 @@ jest.setTimeout(30000);
 const TEST_MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/product_test_db';
 
 beforeAll(async () => {
-  // Thêm appName để ép Mongoose gửi metadata hợp lệ cho MongoDB 6.0+
-  await mongoose.connect(TEST_MONGO_URI, {
-    appName: 'jest-ci-test'
-  });
+  let retries = 3;
+  while (retries > 0) {
+    try {
+      await mongoose.connect(TEST_MONGO_URI, {
+        appName: 'jest-ci-test',
+        serverSelectionTimeoutMS: 5000, // Chờ 5s để tìm server
+        socketTimeoutMS: 45000,         // Chờ 45s cho các tác vụ socket
+        family: 4                       // Ép dùng IPv4
+      });
+      break; // Kết nối thành công thì thoát vòng lặp
+    } catch (err) {
+      retries--;
+      if (retries === 0) throw err;
+      // Đợi 1 giây rồi thử kết nối lại nếu DB chưa khởi động xong
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
 });
 
 afterAll(async () => {
