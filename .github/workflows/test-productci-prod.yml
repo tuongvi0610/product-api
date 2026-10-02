@@ -26,6 +26,8 @@ jobs:
       - name: Chạy toàn bộ integration tests
         env:
           PORT: 3000
+          MONGOMS_DOWNLOAD_MIRROR: https://fastdl.mongodb.org/linux
+          MONGOMS_PREFER_GLOBAL_PATH: 1
         run: npm test
 
   cd-dockerhub:

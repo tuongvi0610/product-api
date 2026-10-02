@@ -3,19 +3,23 @@ const mongoose = require('mongoose');
 const app = require('../src/app');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
-// Tăng timeout vì lần đầu tải binary MongoDB giả lập có thể mất chút thời gian
-jest.setTimeout(60000); 
+// Tăng hẳn thời gian chờ lên 120 giây (2 phút) để GitHub Actions có đủ thời gian tải file lõi
+jest.setTimeout(120000); 
 
 let mongoServer;
 
 beforeAll(async () => {
-  // Khởi tạo MongoDB ngay trong RAM
-  mongoServer = await MongoMemoryServer.create();
-  const mongoUri = mongoServer.getUri();
-  
-  await mongoose.connect(mongoUri, {
-    appName: 'jest-ci-test',
-  });
+  try {
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
+    
+    await mongoose.connect(mongoUri, {
+      appName: 'jest-ci-test',
+    });
+  } catch (error) {
+    console.error('Lỗi khởi tạo MongoDB Memory Server:', error);
+    throw new Error(`Khởi tạo MongoDB thất bại: ${error.message}`);
+  }
 });
 
 afterAll(async () => {
