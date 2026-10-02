@@ -10,17 +10,11 @@ jobs:
   test-and-verify:
     runs-on: ubuntu-22.04
 
-    services:
-      mongodb:
-        image: mongo:6.0
-        ports:
-          - 27017:27017
-
     steps:
       - name: Checkout mã nguồn
         uses: actions/checkout@v4
 
-      - name: Thiết lập môi trường Node.js 18
+      - name: Thiết lập Node.js 18
         uses: actions/setup-node@v4
         with:
           node-version: 18
@@ -29,10 +23,9 @@ jobs:
       - name: Cài đặt toàn bộ dependencies
         run: npm ci
 
-      - name: Chạy toàn bộ integration tests CRUD với MongoDB
+      - name: Chạy toàn bộ integration tests
         env:
           PORT: 3000
-          MONGO_URI: mongodb://127.0.0.1:27017/product_test_db
         run: npm test
 
   cd-dockerhub:

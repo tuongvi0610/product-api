@@ -1,29 +1,21 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
 const app = require('../src/app');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 
-jest.setTimeout(30000);
+// Tăng timeout vì lần đầu tải binary MongoDB giả lập có thể mất chút thời gian
+jest.setTimeout(60000); 
 
-const TEST_MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/product_test_db';
+let mongoServer;
 
 beforeAll(async () => {
-  let retries = 3;
-  while (retries > 0) {
-    try {
-      await mongoose.connect(TEST_MONGO_URI, {
-        appName: 'jest-ci-test',
-        serverSelectionTimeoutMS: 5000, // Chờ 5s để tìm server
-        socketTimeoutMS: 45000,         // Chờ 45s cho các tác vụ socket
-        family: 4                       // Ép dùng IPv4
-      });
-      break; // Kết nối thành công thì thoát vòng lặp
-    } catch (err) {
-      retries--;
-      if (retries === 0) throw err;
-      // Đợi 1 giây rồi thử kết nối lại nếu DB chưa khởi động xong
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-  }
+  // Khởi tạo MongoDB ngay trong RAM
+  mongoServer = await MongoMemoryServer.create();
+  const mongoUri = mongoServer.getUri();
+  
+  await mongoose.connect(mongoUri, {
+    appName: 'jest-ci-test',
+  });
 });
 
 afterAll(async () => {
@@ -31,6 +23,9 @@ afterAll(async () => {
     await mongoose.connection.dropDatabase();
   }
   await mongoose.connection.close();
+  if (mongoServer) {
+    await mongoServer.stop();
+  }
 });
 
 describe('Product RESTful API CRUD Tests', () => {
