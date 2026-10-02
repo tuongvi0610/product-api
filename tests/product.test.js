@@ -13,11 +13,25 @@ beforeAll(async () => {
     const mongoUri = mongoServer.getUri();
     
     // Gỡ bỏ hoàn toàn driverInfo theo hướng dẫn của Copilot
+    beforeAll(async () => {
+  try {
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
+    
     await mongoose.connect(mongoUri, {
       appName: 'jest-ci-test',
       serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000
+      socketTimeoutMS: 45000,
+      driverInfo: {
+        name: 'jest-test',
+        version: '1.0.0'
+      }
     });
+  } catch (error) {
+    console.error('Lỗi khởi tạo MongoDB Memory Server:', error);
+    throw new Error(`Khởi tạo MongoDB thất bại: ${error.message}`);
+  }
+});
   } catch (error) {
     console.error('Lỗi khởi tạo MongoDB Memory Server:', error);
     throw new Error(`Khởi tạo MongoDB thất bại: ${error.message}`);
