@@ -14,14 +14,9 @@ beforeAll(async () => {
     
     await mongoose.connect(mongoUri, {
       appName: 'jest-ci-test',
-      // Fix dứt điểm lỗi Missing required sub-document 'driver'
       driverInfo: {
         name: 'jest-ci',
         version: '1.0.0'
-      },
-      driver: { 
-        name: 'nodejs|jest', 
-        version: '1.0.0' 
       },
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000
