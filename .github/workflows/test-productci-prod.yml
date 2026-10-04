@@ -7,6 +7,10 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
+
+  # ==========================================
+  # JOB 1: TEST
+  # ==========================================
   test-and-verify:
     runs-on: ubuntu-22.04
 
@@ -30,9 +34,16 @@ jobs:
           MONGOMS_PREFER_GLOBAL_PATH: 1
         run: npm test
 
+
+  # ==========================================
+  # JOB 2: BUILD + PUSH DOCKER HUB
+  # ==========================================
   cd-dockerhub:
     needs: test-and-verify
     runs-on: ubuntu-22.04
+
+    # Chỉ build/push khi push code,
+    # không chạy khi Pull Request
     if: github.event_name == 'push'
 
     steps:
@@ -57,20 +68,30 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/product-api:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/product-api:${{ github.sha }}
 
+
+  # ==========================================
+  # JOB 3: DEPLOY LOCAL
+  # ==========================================
   deploy-local:
     needs: cd-dockerhub
     runs-on: self-hosted
+
+    # Chỉ deploy khi push lên repository
     if: github.event_name == 'push'
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Kiểm tra Docker
         run: |
-          & "C:\Users\ADMIN\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe" --version
+          docker --version
+          docker info
 
       - name: Kéo image mới nhất từ Docker Hub về Local
         run: |
-          & "C:\Users\ADMIN\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe" compose -f docker-compose-prod.yaml pull
+          docker compose -f docker-compose-prod.yaml pull
 
       - name: Khởi động container phiên bản mới
         run: |
-          & "C:\Users\ADMIN\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe" compose -f docker-compose-prod.yaml up -d --remove-orphans
+          docker compose -f docker-compose-prod.yaml up -d --remove-orphans
