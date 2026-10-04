@@ -34,6 +34,7 @@ jobs:
     needs: test-and-verify
     runs-on: ubuntu-22.04
     if: github.event_name == 'push'
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -59,11 +60,17 @@ jobs:
   deploy-local:
     needs: cd-dockerhub
     runs-on: self-hosted
+    if: github.event_name == 'push'
+
     steps:
+      - name: Kiểm tra Docker
+        run: |
+          & "C:\Users\ADMIN\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe" --version
+
       - name: Kéo image mới nhất từ Docker Hub về Local
         run: |
-          docker compose -f docker-compose-prod.yaml pull
+          & "C:\Users\ADMIN\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe" compose -f docker-compose-prod.yaml pull
 
       - name: Khởi động container phiên bản mới
         run: |
-          docker compose -f docker-compose-prod.yaml up -d --remove-orphans
+          & "C:\Users\ADMIN\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe" compose -f docker-compose-prod.yaml up -d --remove-orphans
